@@ -2,9 +2,11 @@
 #include <vector>
 #include <string>
 #include <stdexcept>
+#include <iomanip>
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#define GLM_FORCE_RADIANS
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -12,44 +14,45 @@
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 
+GLuint shaderProgram = 0;
+GLuint VAO = 0, VBO_positions = 0, VBO_colors = 0;
 
-GLuint shaderProgram;
-GLuint VAO, VBO_positions, VBO_colors;
 std::vector<glm::vec3> g_positions;
 std::vector<glm::vec3> g_colors;
 
-// MVP
+// ≈‹¥´
 glm::mat4 model_matrix(1.0f);
 glm::mat4 view_matrix(1.0f);
 glm::mat4 projection_matrix(1.0f);
-GLint modelLoc, viewLoc, projLoc;
+GLint modelLoc = -1, viewLoc = -1, projLoc = -1;
 
+// ≤”§¿ºhØ≈
 int g_subdivision_level = 0;
+int g_last_submitted_level = -1; // •Œ®”∞ª¥˙≈‹§∆
 
-// mouse
+// ∑∆π´§¨∞ 
 bool g_is_dragging = false;
 double g_last_mouse_x = 0.0;
 double g_last_mouse_y = 0.0;
 float g_rotate_x = 0.0f;
 float g_rotate_y = 0.0f;
 
-// vertex
+// •|≠±≈È (Tetrahedron) ™∫ 4 ≠”™Ï©l≥ª¬I
 glm::vec3 initial_points[4] = {
     glm::vec3(0.0f,  0.8165f, 0.0f),
     glm::vec3(-0.8165f, -0.4082f, 0.4714f),
-    glm::vec3( 0.8165f, -0.4082f, 0.4714f),
-    glm::vec3( 0.0f,  -0.4082f, -0.9428f)
+    glm::vec3(0.8165f, -0.4082f, 0.4714f),
+    glm::vec3(0.0f,  -0.4082f, -0.9428f)
 };
 
+// 4 ≠”≠±™∫∞Ú¬¶√C¶‚
 glm::vec3 base_colors[4] = {
-    glm::vec3(1.0f, 0.0f, 0.0f), // red
-    glm::vec3(0.0f, 1.0f, 0.0f), // green
-    glm::vec3(0.0f, 0.0f, 1.0f), // blue
-    glm::vec3(1.0f, 1.0f, 0.0f)  // yellow
+    glm::vec3(1.0f, 0.0f, 0.0f), // ¨ı
+    glm::vec3(0.0f, 1.0f, 0.0f), // ∫Ò
+    glm::vec3(0.0f, 0.0f, 1.0f), // ¬≈
+    glm::vec3(1.0f, 1.0f, 0.0f)  // ∂¿
 };
 
-
-// shader
 const char* vertexShaderSource = R"glsl(
     #version 450 core
     layout (location = 0) in vec3 aPos;
@@ -74,21 +77,17 @@ const char* fragmentShaderSource = R"glsl(
 )glsl";
 
 
+// --- ª≤ßU®Á¶° ---
 void checkShaderError(GLuint shader, std::string type) {
     GLint success;
     GLchar infoLog[1024];
     if (type != "PROGRAM") {
         glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
-        if (!success) {
-            glGetShaderInfoLog(shader, 1024, NULL, infoLog);
-            std::cerr << "[X] Shader compile error (" << type << ")\n" << infoLog << std::endl;
-        }
-    } else {
+        if (!success) { glGetShaderInfoLog(shader, 1024, NULL, infoLog); std::cerr << "Shader COMPILE error (" << type << "):\n" << infoLog << std::endl; }
+    }
+    else {
         glGetProgramiv(shader, GL_LINK_STATUS, &success);
-        if (!success) {
-            glGetProgramInfoLog(shader, 1024, NULL, infoLog);
-            std::cerr << "[X] Shader link error (" << type << ")\n" << infoLog << std::endl;
-        }
+        if (!success) { glGetProgramInfoLog(shader, 1024, NULL, infoLog); std::cerr << "Shader LINK error (" << type << "):\n" << infoLog << std::endl; }
     }
 }
 
@@ -117,7 +116,7 @@ void initShaders() {
     projLoc = glGetUniformLocation(shaderProgram, "projection");
 }
 
-// --- 3D Gasket ÈÅûËø¥ÂáΩÂºè (Âíå‰πãÂâçÁõ∏Âêå) ---
+// --- 3D Gasket ªº∞j®Á¶° ---
 void add_triangle(glm::vec3 a, glm::vec3 b, glm::vec3 c, glm::vec3 color) {
     g_positions.push_back(a);
     g_positions.push_back(b);
@@ -150,96 +149,118 @@ void divide_tetrahedron(glm::vec3 a, glm::vec3 b, glm::vec3 c, glm::vec3 d, int 
     glm::vec3 m_bd = midpoint(b, d);
     glm::vec3 m_cd = midpoint(c, d);
 
-    divide_tetrahedron(a,    m_ab, m_ac, m_ad, level - 1);
-    divide_tetrahedron(m_ab, b,    m_bc, m_bd, level - 1);
-    divide_tetrahedron(m_ac, m_bc, c,    m_cd, level - 1);
-    divide_tetrahedron(m_ad, m_bd, m_cd, d,    level - 1);
+    divide_tetrahedron(a, m_ab, m_ac, m_ad, level - 1);
+    divide_tetrahedron(m_ab, b, m_bc, m_bd, level - 1);
+    divide_tetrahedron(m_ac, m_bc, c, m_cd, level - 1);
+    divide_tetrahedron(m_ad, m_bd, m_cd, d, level - 1);
 }
 
+// --- ∏ÍÆ∆ßÛ∑s®Á¶° ---
 void updateGasketData() {
     g_positions.clear();
     g_colors.clear();
-
-    std::cout << "Generate Level " << g_subdivision_level << " ÁöÑ Gasket..." << std::endl;
+    std::cout << "[*] Generating Level " << g_subdivision_level << " Gasket..." << std::endl;
     divide_tetrahedron(
         initial_points[0], initial_points[1],
         initial_points[2], initial_points[3],
         g_subdivision_level
     );
-    std::cout << "[*] Generation completed, total vertex: " << g_positions.size() << std::endl;
+    std::cout << "[*] Generation completed, total vertices: " << g_positions.size() << std::endl;
 
-    // ‰∏äÂÇ≥Êñ∞Ë≥áÊñôÂà∞ GPU
+    // §W∂«∑s∏ÍÆ∆®Ï GPU
+    glBindVertexArray(VAO); // ΩT´O VAO ¨O∏j©w™∫
     glBindBuffer(GL_ARRAY_BUFFER, VBO_positions);
     glBufferData(GL_ARRAY_BUFFER, g_positions.size() * sizeof(glm::vec3), g_positions.data(), GL_STATIC_DRAW);
-
     glBindBuffer(GL_ARRAY_BUFFER, VBO_colors);
     glBufferData(GL_ARRAY_BUFFER, g_colors.size() * sizeof(glm::vec3), g_colors.data(), GL_STATIC_DRAW);
-
     glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
+
+    g_last_submitted_level = g_subdivision_level;
 }
 
-// error callback
+
+// --- [∑s] ImGui øÔ≥Ê√∏ªs®Á¶° ---
+void drawImGuiPopup(GLFWwindow* window) {
+    // ¬I¿ª•k¡‰ºu•XøÔ≥Ê
+    if (ImGui::BeginPopupContextWindow("HomeworkMenu"))
+    {
+        if (ImGui::BeginMenu("Subdivision Level"))
+        {
+            // ¿∞ß⁄≠Ã´ÿ•ﬂ 4 ≠”øÔ∂µ
+            for (int i = 0; i <= 3; ++i) {
+                // (label, shortcut, is_selected, is_enabled)
+                if (ImGui::MenuItem(("Level " + std::to_string(i)).c_str(), "", g_subdivision_level == i, true)) {
+                    g_subdivision_level = i; // ßÛ∑sºhØ≈
+                }
+            }
+            ImGui::EndMenu();
+        }
+
+        ImGui::Separator(); // §¿πjΩu
+
+        // ≤≈¶Xß@∑~≠n®D: "Exit"
+        if (ImGui::MenuItem("Exit (or press 'Q')")) {
+            glfwSetWindowShouldClose(window, GLFW_TRUE);
+        }
+
+        ImGui::EndPopup();
+    }
+}
+
+
+// GLFW Callbacks
+
 void error_callback(int error, const char* description) {
-    std::cerr << "GLFW ÈåØË™§: " << description << std::endl;
+    std::cerr << "GLFW ø˘ª~: " << description << std::endl;
 }
 
-// keyboard callback
+// ≤≈¶Xß@∑~≠n®D: 'q' ©Œ 'Q' ∞h•X
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
-    // ËÆì ImGui ÂÑ™ÂÖàËôïÁêÜ
-    ImGui_ImplGlfw_KeyCallback(window, key, scancode, action, mods);
-
-    // Â¶ÇÊûú ImGui ‰∏çÊÉ≥Áî®ÈçµÁõ§ÔºåÊàëÂÄëÊâçËôïÁêÜ
+    // ¿À¨d GUI ¨Oß_•ø¶b®œ•Œ¡‰ΩL (®“¶p¶b§Â¶rÆÿ§§•¥¶r)
     ImGuiIO& io = ImGui::GetIO();
     if (io.WantCaptureKeyboard) {
-        return;
+        return; // ImGui •ø¶b•Œ°Aß⁄≠Ã¥N§£≠n≥B≤z
     }
 
-    // Á¨¶Âêà‰ΩúÊ•≠Ë¶ÅÊ±Ç: 'q' Êàñ 'Q' ÈÄÄÂá∫
     if (key == GLFW_KEY_Q && action == GLFW_PRESS) {
-        std::cout << "‰ΩøÁî®ËÄÖË¶ÅÊ±ÇÈÄÄÂá∫..." << std::endl;
+        std::cout << "[*] User requested exit..." << std::endl;
         glfwSetWindowShouldClose(window, GLFW_TRUE);
     }
 }
 
-// Ë¶ñÁ™óÈáçÂ°ëÂõûÂëº
 void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
     if (height == 0) height = 1;
     float aspect = (float)width / (float)height;
-
     glViewport(0, 0, width, height);
-
     projection_matrix = glm::perspective(glm::radians(45.0f), aspect, 0.1f, 100.0f);
 }
 
-// mouse click ballback
+// ≥B≤z∑∆π´¬I¿ª (•Œ©Û±€¬‡)
 void mouse_button_callback(GLFWwindow* window, int button, int action, int mods) {
-    // ËÆì ImGui ÂÑ™ÂÖàËôïÁêÜ
-    ImGui_ImplGlfw_MouseButtonCallback(window, button, action, mods);
-
-    // Â¶ÇÊûú ImGui ‰∏çÊÉ≥Áî®ÊªëÈº†ÔºåÊàëÂÄëÊâçËôïÁêÜ
+    // ¿À¨d GUI ¨Oß_•ø¶b®œ•Œ∑∆π´
     ImGuiIO& io = ImGui::GetIO();
     if (io.WantCaptureMouse) {
-        return;
+        return; // ImGui •ø¶b•Œ (®“¶p¬I¿ªøÔ≥Ê)°Aß⁄≠Ã¥N§£≠n≥B≤z
     }
 
+    // ≥B≤z≥ı¥∫©Ï¶≤
     if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
         g_is_dragging = true;
         glfwGetCursorPos(window, &g_last_mouse_x, &g_last_mouse_y);
-    } else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE) {
+    }
+    else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE) {
         g_is_dragging = false;
     }
 }
 
-// mouse move ballback
+// ≥B≤z∑∆π´©Ï¶≤ (•Œ©Û±€¬‡)
 void cursor_position_callback(GLFWwindow* window, double xpos, double ypos) {
-    // ËÆì ImGui ÂÑ™ÂÖàËôïÁêÜ
-    ImGui_ImplGlfw_CursorPosCallback(window, xpos, ypos);
-
     if (g_is_dragging) {
-        // Â¶ÇÊûú ImGui Ê≠£Âú®‰ΩøÁî®ÊªëÈº† (‰æãÂ¶ÇÊãñÂãïÈÅ∏ÂñÆ)ÔºåÊàëÂÄëÂ∞±‰∏çÊóãËΩâ
+        // ¶A¶∏¿À¨d ImGui (®“¶p©Ï¶≤øÔ≥Ê)
         ImGuiIO& io = ImGui::GetIO();
         if (io.WantCaptureMouse) {
-            g_is_dragging = false; // ÂÅúÊ≠¢ÊãñÊõ≥
+            g_is_dragging = false;
             return;
         }
 
@@ -254,181 +275,163 @@ void cursor_position_callback(GLFWwindow* window, double xpos, double ypos) {
     }
 }
 
-// ImGui ÊªæËº™ÂõûÂëº
+// ImGui ª›≠n∫uΩ¸¶^©I
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
-    ImGui_ImplGlfw_ScrollCallback(window, xoffset, yoffset);
+    // ImGui ™∫ 'Init' ®Á¶°∑|¶€∞ ≥B≤z≥o≠”
+    // ß⁄≠Ã§£ª›≠n∞µ•Ù¶Û®∆
 }
 
-
-// --- Áπ™Ë£Ω ImGui ÈÅ∏ÂñÆ ---
-void drawImGuiMenu() {
-    // Âú®Ë¶ñÁ™óÁöÑ‰ªª‰ΩïÂú∞ÊñπÈªûÊìäÂè≥ÈçµÔºåÈÉΩÊúÉËß∏ÁôºÈÄôÂÄãÂΩàÂá∫ÂºèÈÅ∏ÂñÆ
-    // (ImGuiPopupFlags_MouseButtonRight)
-    if (ImGui::BeginPopupContextWindow("HomeworkMenu"))
-    {
-        // ÈÄôÊòØÈÅ∏ÂñÆÁöÑ‰∏ªÈ´î
-        // Á¨¶Âêà‰ΩúÊ•≠Ë¶ÅÊ±Ç: "Subdivision Level" Â≠êÈÅ∏ÂñÆ
-        if (ImGui::BeginMenu("Subdivision Level"))
-        {
-            // Âπ´ÊàëÂÄëÂª∫Á´ã 4 ÂÄãÈÅ∏È†Ö
-            for (int i = 0; i <= 3; ++i) {
-                if (ImGui::MenuItem(("Level " + std::to_string(i)).c_str(), "", g_subdivision_level == i)) {
-                    if (g_subdivision_level != i) {
-                        g_subdivision_level = i;
-                        updateGasketData(); // ÈáçÊñ∞Áî¢Áîü VBO
-                    }
-                }
-            }
-            ImGui::EndMenu();
-        }
-
-        ImGui::Separator(); // ÂàÜÈöîÁ∑ö
-
-        // Á¨¶Âêà‰ΩúÊ•≠Ë¶ÅÊ±Ç: "Exit"
-        if (ImGui::MenuItem("Exit (or press 'Q')")) {
-            // (ÊàëÂÄëÈúÄË¶ÅË¶ñÁ™óÊåáÊ®ô‰æÜÈóúÈñâ)
-            GLFWwindow* window = glfwGetCurrentContext();
-            glfwSetWindowShouldClose(window, GLFW_TRUE);
-        }
-
-        ImGui::EndPopup();
-    }
-}
 
 void initGL() {
-    gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
+    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
+        throw std::runtime_error("GLAD ™Ï©l§∆•¢±—");
+    }
+    std::cout << "[*] OpenGL Version: " << glGetString(GL_VERSION) << std::endl;
 
-    // 2. Ë®≠ÂÆö OpenGL ÁãÄÊÖã
-    glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+    // 2. ≥]©w OpenGL ™¨∫A
+    glClearColor(0.1f, 0.1f, 0.1f, 1.0f); // ≤`¶«¶‚≠I¥∫
     glEnable(GL_DEPTH_TEST);
-    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    glEnable(GL_BLEND); // ImGui ª›≠n
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); // ImGui ª›≠n
 
-    // 3. Á∑®Ë≠Ø‰∏¶ÈÄ£ÁµêËëóËâ≤Âô®
+    // 3. Ωsƒ∂®√≥sµ≤µ€¶‚æπ
     initShaders();
 
-    // 4. Âª∫Á´ã VAO Âíå VBOs
+    // 4. ´ÿ•ﬂ VAO ©M VBOs
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO_positions);
     glGenBuffers(1, &VBO_colors);
 
-    // 5. Ë®≠ÂÆö VAO (Âíå‰πãÂâçÁõ∏Âêå)
+    // 5. ≥]©w VAO (Vertex Array Object)
     glBindVertexArray(VAO);
+
     glBindBuffer(GL_ARRAY_BUFFER, VBO_positions);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
+
     glBindBuffer(GL_ARRAY_BUFFER, VBO_colors);
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(1);
+
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
 
-    // 6. Á¨¨‰∏ÄÊ¨°Áî¢ÁîüË≥áÊñô (Level 0)
+    // 6. ≤ƒ§@¶∏≤£•Õ∏ÍÆ∆ (Level 0)
     updateGasketData();
 }
 
 int main(int argc, char** argv) {
-    // 1. ÂàùÂßãÂåñ GLFW
+    // init GLFW
     glfwSetErrorCallback(error_callback);
-    glfwInit();
+    if (!glfwInit()) {
+        std::cerr << "[X] GLFW init failed" << std::endl;
+        return -1;
+    }
 
-    // 2. Ë®≠ÂÆö OpenGL 4.4 Core Profile
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 4);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-#ifdef __APPLE__
-    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); // Mac ÈúÄË¶Å
-#endif
 
-    // 3. Âª∫Á´ãË¶ñÁ™ó (‰∏¶Ë®≠ÂÆöÊ®ôÈ°åÁÇ∫Â≠∏Ëôü)
-    GLFWwindow* window = glfwCreateWindow(800, 600, "123456789", NULL, NULL); // <--- Ë´ãÊîπÊàê‰Ω†ÁöÑÂ≠∏Ëôü
-    if (window == NULL) {
-        std::cerr << "GLFW Ë¶ñÁ™óÂª∫Á´ãÂ§±Êïó" << std::endl;
+    GLFWwindow* window = glfwCreateWindow(800, 600, "S11259043", NULL, NULL);
+    if (!window) {
+        std::cerr << "[X] GLFW window create failed" << std::endl;
         glfwTerminate();
         return -1;
     }
     glfwMakeContextCurrent(window);
-    glfwSwapInterval(1); // ÂïüÁî®ÂûÇÁõ¥ÂêåÊ≠•
+    glfwSwapInterval(1); // ±“•Œ VSync
 
-    // 4. ÂàùÂßãÂåñ OpenGL (GLEW) ÂíåÊàëÂÄëÁöÑËëóËâ≤Âô®/VBO
     try {
         initGL();
-    } catch (const std::exception& e) {
-        std::cerr << "ÁôºÁîüÂö¥ÈáçÈåØË™§: " << e.what() << std::endl;
+    }
+    catch (const std::exception& e) {
+        std::cerr << "[X] Fatal error: " << e.what() << std::endl;
         glfwTerminate();
         return -1;
     }
 
-    // 5. Ë®ªÂÜä GLFW ÂõûÂëºÂáΩÂºè
+    // register callbacks
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
     glfwSetKeyCallback(window, key_callback);
     glfwSetMouseButtonCallback(window, mouse_button_callback);
     glfwSetCursorPosCallback(window, cursor_position_callback);
-    glfwSetScrollCallback(window, scroll_callback); // ImGui ÈúÄË¶Å
+    glfwSetScrollCallback(window, scroll_callback);
 
-    // --- ÂàùÂßãÂåñ Dear ImGui ---
+    // --- ™Ï©l§∆ Dear ImGui ---
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO(); (void)io;
-    ImGui::StyleColorsDark(); // Ë®≠ÂÆöÈ¢®Ê†º
-    // Á∂ÅÂÆö GLFW Âíå OpenGL
+    ImGui::StyleColorsDark(); // theme
+    // [√ˆ¡‰] ∏j©w GLFW ©M OpenGL°A®√ "¶w∏À¶^©I"
     ImGui_ImplGlfw_InitForOpenGL(window, true);
-    ImGui_ImplOpenGL3_Init("#version 440 core");
+    ImGui_ImplOpenGL3_Init("#version 450 core");
 
-    // --- Ë®≠ÂÆöË¶ñÁ™óÂ§ßÂ∞è (Ëß∏Áôº‰∏ÄÊ¨° reshape) ---
+
     int width, height;
     glfwGetFramebufferSize(window, &width, &height);
     framebuffer_size_callback(window, width, height);
 
-    // 6. ÈÄ≤ÂÖ•‰∏ªËø¥Âúà (Game Loop)
-    std::cout << "Á®ãÂºèÂïüÂãï. Êåâ 'q' ÈÄÄÂá∫, ÊàñÊåâÂè≥ÈçµÈñãÂïüÈÅ∏ÂñÆ." << std::endl;
+    // main loop
+    std::cout << "µ{¶°±“∞ . ´ˆ 'q' ∞h•X, ©Œ´ˆ•k¡‰∂}±“øÔ≥Ê." << std::endl;
     while (!glfwWindowShouldClose(window)) {
-        // (a) ËôïÁêÜËº∏ÂÖ•
         glfwPollEvents();
 
-        // (b) ÈñãÂßã ImGui Êñ∞ÁöÑ‰∏ÄÂπÄ
+        // --- ImGui: New Frame ---
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
-        // (c) Áπ™Ë£ΩÊàëÂÄëÁöÑ ImGui ÈÅ∏ÂñÆ
-        drawImGuiMenu();
+        // --- √∏ªsßA™∫ºu•X¶°øÔ≥Ê ---
+        drawImGuiPopup(window);
 
-        // (d) Áπ™Ë£ΩÊàëÂÄëÁöÑ 3D Â†¥ÊôØ
+        // (¿À¨døÔ≥Ê¨Oß_ßÔ≈‹§FºhØ≈)
+        if (g_subdivision_level != g_last_submitted_level) {
+            updateGasketData();
+        }
+
+        // --- √∏ªs 3D ≥ı¥∫ ---
+        glfwGetFramebufferSize(window, &width, &height); // ®˙±o∑Ì´e§j§p
+        glViewport(0, 0, width, height);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glUseProgram(shaderProgram);
 
-        // Êõ¥Êñ∞ MVP Áü©Èô£
-        view_matrix = glm::lookAt(glm::vec3(0.0f, 0.0f, 3.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        // update MVP
+        view_matrix = glm::lookAt(glm::vec3(0.0f, 0.0f, 3.0f),
+            glm::vec3(0.0f, 0.0f, 0.0f),
+            glm::vec3(0.0f, 1.0f, 0.0f));
+
+        g_rotate_y += 0.1f; // ¶€∞ ¬∂ Y ∂b±€¬‡
+
         model_matrix = glm::mat4(1.0f);
         model_matrix = glm::rotate(model_matrix, glm::radians(g_rotate_x), glm::vec3(1.0f, 0.0f, 0.0f));
         model_matrix = glm::rotate(model_matrix, glm::radians(g_rotate_y), glm::vec3(0.0f, 1.0f, 0.0f));
+
         glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view_matrix));
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model_matrix));
         glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection_matrix));
 
-        // Áπ™Ë£Ω Gasket
+        // bind VAO and draw
         glBindVertexArray(VAO);
-        glDrawArrays(GL_TRIANGLES, 0, (GLsizei)g_positions.size());
+        glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(g_positions.size()));
         glBindVertexArray(0);
 
-        // (e) Áπ™Ë£Ω ImGui
+        // --- ImGui Render ---
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
-        // (f) ‰∫§ÊèõÁ∑©Ë°ùÂçÄ
         glfwSwapBuffers(window);
     }
 
-    // 7. Ê∏ÖÁêÜ
+    // cleanup
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
 
-    glDeleteVertexArrays(1, &VAO);
-    glDeleteBuffers(1, &VBO_positions);
-    glDeleteBuffers(1, &VBO_colors);
-    glDeleteProgram(shaderProgram);
+    if (VAO) glDeleteVertexArrays(1, &VAO);
+    if (VBO_positions) glDeleteBuffers(1, &VBO_positions);
+    if (VBO_colors) glDeleteBuffers(1, &VBO_colors);
+    if (shaderProgram) glDeleteProgram(shaderProgram);
 
     glfwDestroyWindow(window);
     glfwTerminate();

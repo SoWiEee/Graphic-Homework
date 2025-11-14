@@ -1,0 +1,36 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36623.8
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Graphic-Homework", "Graphic-Homework\Graphic-Homework.vcxproj", "{CD0FF171-54BE-41C0-AB52-3D9EE89D98F6}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "方案項目", "方案項目", "{8DDC4786-5FC8-F15C-1CA5-9F41FD4BEB75}"
+	ProjectSection(SolutionItems) = preProject
+		.gitignore = .gitignore
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{CD0FF171-54BE-41C0-AB52-3D9EE89D98F6}.Debug|x64.ActiveCfg = Debug|x64
+		{CD0FF171-54BE-41C0-AB52-3D9EE89D98F6}.Debug|x64.Build.0 = Debug|x64
+		{CD0FF171-54BE-41C0-AB52-3D9EE89D98F6}.Debug|x86.ActiveCfg = Debug|Win32
+		{CD0FF171-54BE-41C0-AB52-3D9EE89D98F6}.Debug|x86.Build.0 = Debug|Win32
+		{CD0FF171-54BE-41C0-AB52-3D9EE89D98F6}.Release|x64.ActiveCfg = Release|x64
+		{CD0FF171-54BE-41C0-AB52-3D9EE89D98F6}.Release|x64.Build.0 = Release|x64
+		{CD0FF171-54BE-41C0-AB52-3D9EE89D98F6}.Release|x86.ActiveCfg = Release|Win32
+		{CD0FF171-54BE-41C0-AB52-3D9EE89D98F6}.Release|x86.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {D795C7A4-F71C-4C07-8E28-5BF4B66415AB}
+	EndGlobalSection
+EndGlobal
