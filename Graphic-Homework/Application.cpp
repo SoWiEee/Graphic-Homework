@@ -34,6 +34,8 @@ void Application::init() {
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
+    glfwWindowHint(GLFW_SAMPLES, 4); // 4x MSAA
+
     std::string windowTitle = "S11259043";
     m_Window = glfwCreateWindow(m_WindowWidth, m_WindowHeight, windowTitle.c_str(), NULL, NULL);
     if (!m_Window) {
@@ -51,6 +53,8 @@ void Application::init() {
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
         throw std::runtime_error("Failed to initialize GLAD");
     }
+
+	glEnable(GL_MULTISAMPLE);   // enable MSAA
 
     glViewport(0, 0, m_WindowWidth, m_WindowHeight);
     glEnable(GL_DEPTH_TEST); // ²`«×´ú¸Õ

@@ -127,4 +127,7 @@
     <Library Include="vendor\glfw\lib-vc2022\glfw3_mt.lib" />
     <Library Include="vendor\glfw\lib-vc2022\glfw3dll.lib" />
   </ItemGroup>
+  <ItemGroup>
+    <Font Include="Roboto-Medium.ttf" />
+  </ItemGroup>
 </Project>
