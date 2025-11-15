@@ -42,6 +42,21 @@
     <ClCompile Include="vendor\glad\src\glad.c">
       <Filter>來源檔案</Filter>
     </ClCompile>
+    <ClCompile Include="Application.cpp">
+      <Filter>來源檔案</Filter>
+    </ClCompile>
+    <ClCompile Include="TetraGasket.cpp">
+      <Filter>來源檔案</Filter>
+    </ClCompile>
+    <ClCompile Include="UIManager.cpp">
+      <Filter>來源檔案</Filter>
+    </ClCompile>
+    <ClCompile Include="Shader.cpp">
+      <Filter>來源檔案</Filter>
+    </ClCompile>
+    <ClCompile Include="Camera.cpp">
+      <Filter>來源檔案</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="vendor\imgui\imconfig.h">
@@ -86,9 +101,26 @@
     <ClInclude Include="stb_image.h">
       <Filter>標頭檔</Filter>
     </ClInclude>
+    <ClInclude Include="Application.h">
+      <Filter>標頭檔</Filter>
+    </ClInclude>
+    <ClInclude Include="TetraGasket.h">
+      <Filter>標頭檔</Filter>
+    </ClInclude>
+    <ClInclude Include="UIManager.h">
+      <Filter>標頭檔</Filter>
+    </ClInclude>
+    <ClInclude Include="Shader.h">
+      <Filter>標頭檔</Filter>
+    </ClInclude>
+    <ClInclude Include="Camera.h">
+      <Filter>標頭檔</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="vendor\glfw\lib-vc2022\glfw3.dll" />
+    <None Include="gasket.vert" />
+    <None Include="gasket.frag" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="vendor\glfw\lib-vc2022\glfw3.lib" />
