@@ -7,17 +7,15 @@
 
 void Shader::load(const char* vertexPath, const char* fragmentPath)
 {
-    // 1. 從檔案路徑讀取 GLSL 程式碼
+    // read GLSL code
     std::string vertexCode;
     std::string fragmentCode;
     std::ifstream vShaderFile;
     std::ifstream fShaderFile;
 
-    // 確保 ifstream 可以拋出例外
     vShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
     fShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
-    try
-    {
+    try {
         vShaderFile.open(vertexPath);
         fShaderFile.open(fragmentPath);
         std::stringstream vShaderStream, fShaderStream;
@@ -31,8 +29,7 @@ void Shader::load(const char* vertexPath, const char* fragmentPath)
         vertexCode = vShaderStream.str();
         fragmentCode = fShaderStream.str();
     }
-    catch (std::ifstream::failure& e)
-    {
+    catch (std::ifstream::failure& e) {
         std::string errorMsg = "ERROR::SHADER::FILE_NOT_SUCCESSFULLY_READ: ";
         errorMsg += vertexPath;
         errorMsg += " or ";
@@ -43,7 +40,7 @@ void Shader::load(const char* vertexPath, const char* fragmentPath)
     const char* vShaderCode = vertexCode.c_str();
     const char* fShaderCode = fragmentCode.c_str();
 
-    // 2. 編譯 Shaders
+    // compile shaders
     GLuint vertex, fragment;
 
     // Vertex Shader
@@ -58,25 +55,22 @@ void Shader::load(const char* vertexPath, const char* fragmentPath)
     glCompileShader(fragment);
     checkCompileErrors(fragment, "FRAGMENT");
 
-    // 3. 連結 Shader Program
+    // link Shader Program
     ID = glCreateProgram();
     glAttachShader(ID, vertex);
     glAttachShader(ID, fragment);
     glLinkProgram(ID);
     checkCompileErrors(ID, "PROGRAM");
 
-    // 連結後，著色器物件已不再需要
     glDeleteShader(vertex);
     glDeleteShader(fragment);
 }
 
-void Shader::use()
-{
+void Shader::use() {
     glUseProgram(ID);
 }
 
-void Shader::cleanup()
-{
+void Shader::cleanup() {
     if (ID != 0)
     {
         glDeleteProgram(ID);
@@ -84,56 +78,42 @@ void Shader::cleanup()
     }
 }
 
-// --- Uniform 輔助函式 ---
-void Shader::setBool(const std::string& name, bool value) const
-{
+void Shader::setBool(const std::string& name, bool value) const {
     glUniform1i(glGetUniformLocation(ID, name.c_str()), (int)value);
 }
 
-void Shader::setInt(const std::string& name, int value) const
-{
+void Shader::setInt(const std::string& name, int value) const {
     glUniform1i(glGetUniformLocation(ID, name.c_str()), value);
 }
 
-void Shader::setFloat(const std::string& name, float value) const
-{
+void Shader::setFloat(const std::string& name, float value) const {
     glUniform1f(glGetUniformLocation(ID, name.c_str()), value);
 }
 
-void Shader::setMat4(const std::string& name, const glm::mat4& mat) const
-{
+void Shader::setMat4(const std::string& name, const glm::mat4& mat) const {
     // 找出 uniform 'name' 的位置
     GLint loc = glGetUniformLocation(ID, name.c_str());
-    if (loc == -1)
-    {
-        // 警告：如果找不到 uniform 也不算嚴重錯誤，可能只是沒被使用
+    if (loc == -1) {
         std::cerr << "Warning: Uniform '" << name << "' not found in shader." << std::endl;
         return;
     }
-    // 將矩陣資料上傳
+    // upload matrix
     glUniformMatrix4fv(loc, 1, GL_FALSE, glm::value_ptr(mat));
 }
 
-
-// --- 錯誤檢查 ---
-void Shader::checkCompileErrors(GLuint shader, std::string type)
-{
+void Shader::checkCompileErrors(GLuint shader, std::string type) {
     GLint success;
     GLchar infoLog[1024];
-    if (type != "PROGRAM")
-    {
+    if (type != "PROGRAM") {
         glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
-        if (!success)
-        {
+        if (!success) {
             glGetShaderInfoLog(shader, 1024, NULL, infoLog);
             throw std::runtime_error("ERROR::SHADER_COMPILATION_ERROR of type: " + type + "\n" + infoLog);
         }
     }
-    else
-    {
+    else {
         glGetProgramiv(shader, GL_LINK_STATUS, &success);
-        if (!success)
-        {
+        if (!success) {
             glGetProgramInfoLog(shader, 1024, NULL, infoLog);
             throw std::runtime_error("ERROR::PROGRAM_LINKING_ERROR of type: " + type + "\n" + infoLog);
         }

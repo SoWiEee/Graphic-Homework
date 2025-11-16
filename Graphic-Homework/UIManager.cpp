@@ -3,8 +3,7 @@
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 
-void UIManager::init(GLFWwindow* window)
-{
+void UIManager::init(GLFWwindow* window) {
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO(); (void)io;
@@ -17,21 +16,18 @@ void UIManager::init(GLFWwindow* window)
     ImGui_ImplOpenGL3_Init("#version 450");
 }
 
-void UIManager::beginFrame()
-{
+void UIManager::beginFrame() {
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
 }
 
-void UIManager::endFrame()
-{
+void UIManager::endFrame() {
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 
-void UIManager::drawContextMenu(int& subdivisionLevel)
-{
+void UIManager::drawContextMenu(int& subdivisionLevel) {
 
     ImGuiIO& io = ImGui::GetIO();
     ImGui::SetNextWindowPos(ImVec2(0.0f, 0.0f));
@@ -78,8 +74,7 @@ void UIManager::drawContextMenu(int& subdivisionLevel)
     ImGui::End();
 }
 
-void UIManager::cleanup()
-{
+void UIManager::cleanup() {
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();

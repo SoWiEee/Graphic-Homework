@@ -3,8 +3,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-class Camera
-{
+class Camera {
 public:
     Camera();
 
@@ -18,12 +17,12 @@ public:
 
 private:
     // 尼紇诀篈
-    glm::vec3 m_Position;
-    glm::vec3 m_Target;
-    glm::vec3 m_Up; // и安砞ッ环琌 (0, 1, 0)
+    glm::vec3 Position;
+    glm::vec3 Target;
+    glm::vec3 Up; // и安砞ッ环琌 (0, 1, 0)
 
     // щ紇把计
-    float m_Fov;  // 跌偿 (Field of View)
-    float m_Near; // キ
-    float m_Far;  // 环キ
+    float Fov;  // 跌偿 (Field of View)
+    float Near; // キ
+    float Far;  // 环キ
 };

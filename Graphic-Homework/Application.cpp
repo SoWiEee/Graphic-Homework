@@ -37,7 +37,7 @@ void Application::init() {
     glfwWindowHint(GLFW_SAMPLES, 4); // 4x MSAA
 
     std::string windowTitle = "S11259043";
-    m_Window = glfwCreateWindow(m_WindowWidth, m_WindowHeight, windowTitle.c_str(), NULL, NULL);
+    m_Window = glfwCreateWindow(WindowWidth, WindowHeight, windowTitle.c_str(), NULL, NULL);
     if (!m_Window) {
         glfwTerminate();
         throw std::runtime_error("Failed to create GLFW window");
@@ -56,7 +56,7 @@ void Application::init() {
 
 	glEnable(GL_MULTISAMPLE);   // enable MSAA
 
-    glViewport(0, 0, m_WindowWidth, m_WindowHeight);
+    glViewport(0, 0, WindowWidth, WindowHeight);
     glEnable(GL_DEPTH_TEST); // 深度測試
     glEnable(GL_CULL_FACE);  // 剔除背面
 
@@ -77,8 +77,8 @@ void Application::init() {
     m_Camera.setTarget(glm::vec3(0.0f, 0.0f, 0.0f));
 
     // init state
-    m_SubdivisionLevel = 0;
-    m_LevelChanged = true;
+    SubdivisionLevel = 0;
+    LevelChanged = true;
 }
 
 void Application::mainLoop() {
@@ -89,18 +89,18 @@ void Application::mainLoop() {
         m_UIManager.beginFrame();
 
         // draw UI
-        int previousLevel = m_SubdivisionLevel;
-        m_UIManager.drawContextMenu(m_SubdivisionLevel);
+        int previousLevel = SubdivisionLevel;
+        m_UIManager.drawContextMenu(SubdivisionLevel);
 
         // Level changed
-        if (m_SubdivisionLevel != previousLevel) {
-            m_LevelChanged = true;
+        if (SubdivisionLevel != previousLevel) {
+            LevelChanged = true;
         }
 
         // Geometry update
-        if (m_LevelChanged) {
-            m_Gasket.generate(m_SubdivisionLevel);
-            m_LevelChanged = false; // reset flag
+        if (LevelChanged) {
+            m_Gasket.generate(SubdivisionLevel);
+            LevelChanged = false; // reset flag
         }
 
         // Rendering
@@ -110,7 +110,7 @@ void Application::mainLoop() {
         m_Shader.use();
 
         // MVP
-        glm::mat4 projection = m_Camera.getProjectionMatrix((float)m_WindowWidth / (float)m_WindowHeight);
+        glm::mat4 projection = m_Camera.getProjectionMatrix((float)WindowWidth / (float)WindowHeight);
         glm::mat4 view = m_Camera.getViewMatrix();
         glm::mat4 model = glm::mat4(1.0f); // 單位矩陣
 
@@ -155,7 +155,7 @@ void Application::framebufferSizeCallback(GLFWwindow* window, int width, int hei
     Application* app = static_cast<Application*>(glfwGetWindowUserPointer(window));
     if (app) {
         glViewport(0, 0, width, height);
-        app->m_WindowWidth = width;
-        app->m_WindowHeight = height;
+        app->WindowWidth = width;
+        app->WindowHeight = height;
     }
 }
