@@ -6,7 +6,8 @@ Camera::Camera()
     Up(0.0f, 1.0f, 0.0f),          // 預設 Y 軸向上
     Fov(45.0f),                    // 預設 45 度視野
     Near(0.1f),
-    Far(100.0f)
+    Far(100.0f),
+    OrthoSize(0.6f)
 {
 }
 
@@ -23,5 +24,11 @@ glm::mat4 Camera::getViewMatrix() const {
 }
 
 glm::mat4 Camera::getProjectionMatrix(float aspectRatio) const {
-    return glm::perspective(glm::radians(Fov), aspectRatio, Near, Far);
+    float top = OrthoSize;
+    float bottom = -OrthoSize;
+    float right = OrthoSize * aspectRatio;
+    float left = -right;
+
+    return glm::ortho(left, right, bottom, top, Near, Far);
+    // return glm::perspective(glm::radians(Fov), aspectRatio, Near, Far);
 }

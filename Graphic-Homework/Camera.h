@@ -20,6 +20,7 @@ private:
     glm::vec3 Position;
     glm::vec3 Target;
     glm::vec3 Up; // и安砞ッ环琌 (0, 1, 0)
+    float OrthoSize;
 
     // щ紇把计
     float Fov;  // 跌偿 (Field of View)

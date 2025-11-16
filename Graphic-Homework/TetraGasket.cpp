@@ -1,15 +1,10 @@
 #include "TetraGasket.h"
 
-static const float sqrt6_4 = sqrt(6.0f) / 4.0f;
-static const float sqrt3_3 = sqrt(3.0f) / 3.0f;
-static const float sqrt6_12 = sqrt(6.0f) / 12.0f;
-static const float sqrt3_6 = -sqrt(3.0f) / 6.0f;
-
 static const glm::vec3 baseVertices[4] = {
-    glm::vec3(0.0f, 0.0f, sqrt6_4),                 // v[0]
-    glm::vec3(0.0f, sqrt3_3, sqrt6_12),             // v[1]
-    glm::vec3(-0.5f, sqrt3_6, sqrt6_12),          // v[2]
-    glm::vec3(0.5f, sqrt3_6, sqrt6_12)            // v[3]
+    glm::vec3(0.0f, 0.0f, sqrt(6.0f) / 4.0f),                   // v[0]
+    glm::vec3(0.0f, sqrt(3.0f) / 3.0f, sqrt(6.0f) / 12.0f),     // v[1]
+    glm::vec3(-0.5f, -sqrt(3.0f) / 6.0, sqrt(6.0f) / 12.0f),    // v[2]
+    glm::vec3(0.5f, -sqrt(3.0f) / 6.0, sqrt(6.0f) / 12.0f)      // v[3]
 };
 
 static const glm::vec3 faceColors[4] = {
@@ -53,8 +48,7 @@ void TetraGasket::generate(int level) {
 void TetraGasket::dividePyramid(const glm::vec3& v1, const glm::vec3& v2, const glm::vec3& v3, const glm::vec3& v4, int level) {
     if (level == 0) {
         drawTetra(v1, v2, v3, v4);
-    }
-    else {
+    } else {
 		// calculate midpoints of each edge
         glm::vec3 m12 = 0.5f * (v1 + v2);
         glm::vec3 m13 = 0.5f * (v1 + v3);
