@@ -109,7 +109,7 @@ void dividePyramid(v1, v2, v3, v4, level)
         dividePyramid(v1, m12, m13, m14, level - 1);
         dividePyramid(m12, v2, m23, m24, level - 1);
         dividePyramid(m13, m23, v3, m34, level - 1);
-        dividePyramid(m14, m24, v34, v4, level - 1);
+        dividePyramid(m14, m24, m34, v4, level - 1);
         
         // c. The central octahedron (formed by the 6 midpoints)
         //    is implicitly "removed" by simply not being
