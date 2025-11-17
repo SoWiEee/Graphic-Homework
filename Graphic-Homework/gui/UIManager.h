@@ -9,6 +9,5 @@ public:
     void endFrame();
     void cleanup();
 
-    // 我們的 UI 面板
     void drawContextMenu(int& subdivisionLevel);
 };

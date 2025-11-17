@@ -48,7 +48,7 @@
     <ClCompile Include="TetraGasket.cpp">
       <Filter>來源檔案</Filter>
     </ClCompile>
-    <ClCompile Include="UIManager.cpp">
+    <ClCompile Include="gui\UIManager.cpp">
       <Filter>來源檔案</Filter>
     </ClCompile>
     <ClCompile Include="Shader.cpp">
@@ -107,7 +107,7 @@
     <ClInclude Include="TetraGasket.h">
       <Filter>標頭檔</Filter>
     </ClInclude>
-    <ClInclude Include="UIManager.h">
+    <ClInclude Include="gui\UIManager.h">
       <Filter>標頭檔</Filter>
     </ClInclude>
     <ClInclude Include="Shader.h">
@@ -119,8 +119,8 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="vendor\glfw\lib-vc2022\glfw3.dll" />
-    <None Include="gasket.vert" />
-    <None Include="gasket.frag" />
+    <None Include="shader\gasket.vert" />
+    <None Include="shader\gasket.frag" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="vendor\glfw\lib-vc2022\glfw3.lib" />

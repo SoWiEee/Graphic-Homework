@@ -82,8 +82,7 @@ void TetraGasket::addTriangle(const glm::vec3& p1, const glm::vec3& p2, const gl
 }
 
 void TetraGasket::draw() {
-    if (VertexCount > 0)
-    {
+    if (VertexCount > 0) {
         glBindVertexArray(VAO);
         glDrawArrays(GL_TRIANGLES, 0, (GLsizei)VertexCount);
         glBindVertexArray(0);

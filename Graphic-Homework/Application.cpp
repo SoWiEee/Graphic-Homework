@@ -1,5 +1,5 @@
 #include "Application.h"
-#include "UIManager.h"
+#include "gui/UIManager.h"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -17,8 +17,8 @@ void Application::run() {
     }
     catch (const std::exception& e) {
         std::cerr << "An unrecoverable error occurred: " << e.what() << std::endl;
-        if (m_Window) {
-            glfwDestroyWindow(m_Window);
+        if (window) {
+            glfwDestroyWindow(window);
         }
         glfwTerminate();
     }
@@ -37,18 +37,18 @@ void Application::init() {
     glfwWindowHint(GLFW_SAMPLES, 4); // 4x MSAA
 
     std::string windowTitle = "S11259043";
-    m_Window = glfwCreateWindow(WindowWidth, WindowHeight, windowTitle.c_str(), NULL, NULL);
-    if (!m_Window) {
+    window = glfwCreateWindow(windowWidth, windowHeight, windowTitle.c_str(), NULL, NULL);
+    if (!window) {
         glfwTerminate();
         throw std::runtime_error("Failed to create GLFW window");
     }
 
-    glfwMakeContextCurrent(m_Window);
-    glfwSetWindowUserPointer(m_Window, this); // 讓我們能在 C-style callback 中取得 'this'
+    glfwMakeContextCurrent(window);
+    glfwSetWindowUserPointer(window, this);
 
     // set callbacks
-    glfwSetKeyCallback(m_Window, keyCallback);
-    glfwSetFramebufferSizeCallback(m_Window, framebufferSizeCallback);
+    glfwSetKeyCallback(window, keyCallback);
+    glfwSetFramebufferSizeCallback(window, framebufferSizeCallback);
 
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
         throw std::runtime_error("Failed to initialize GLAD");
@@ -56,25 +56,25 @@ void Application::init() {
 
 	glEnable(GL_MULTISAMPLE);   // enable MSAA
 
-    glViewport(0, 0, WindowWidth, WindowHeight);
+    glViewport(0, 0, windowWidth, windowHeight);
     glEnable(GL_DEPTH_TEST); // 深度測試
     glEnable(GL_CULL_FACE);  // 剔除背面
 
-    m_UIManager.init(m_Window);
+    gui.init(window);
 
     try {
-        m_Shader.load("gasket.vert", "gasket.frag");
+        shader.load("shader/gasket.vert", "shader/gasket.frag");
     }
     catch (const std::exception& e) {
         throw std::runtime_error(std::string("Shader load error: ") + e.what());
     }
 
-    m_Gasket.init();
+    gasket.init();
 
     // Z=2 -> (0,0,0)
     // 並稍微向上移動 (Y 軸)，俯視角
-    m_Camera.setPosition(glm::vec3(0.0f, 0.0f, 2.0f));
-    m_Camera.setTarget(glm::vec3(0.0f, 0.0f, 0.0f));
+    cam.setPosition(glm::vec3(0.0f, 0.0f, 2.0f));
+    cam.setTarget(glm::vec3(0.0f, 0.0f, 0.0f));
 
     // init state
     SubdivisionLevel = 0;
@@ -82,15 +82,15 @@ void Application::init() {
 }
 
 void Application::mainLoop() {
-    while (!glfwWindowShouldClose(m_Window)) {
+    while (!glfwWindowShouldClose(window)) {
 		// unput handling
         glfwPollEvents();
 
-        m_UIManager.beginFrame();
+        gui.beginFrame();
 
         // draw UI
         int previousLevel = SubdivisionLevel;
-        m_UIManager.drawContextMenu(SubdivisionLevel);
+        gui.drawContextMenu(SubdivisionLevel);
 
         // Level changed
         if (SubdivisionLevel != previousLevel) {
@@ -99,7 +99,7 @@ void Application::mainLoop() {
 
         // Geometry update
         if (LevelChanged) {
-            m_Gasket.generate(SubdivisionLevel);
+            gasket.generate(SubdivisionLevel);
             LevelChanged = false; // reset flag
         }
 
@@ -107,33 +107,33 @@ void Application::mainLoop() {
         glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        m_Shader.use();
+        shader.use();
 
         // MVP
-        glm::mat4 projection = m_Camera.getProjectionMatrix((float)WindowWidth / (float)WindowHeight);
-        glm::mat4 view = m_Camera.getViewMatrix();
+        glm::mat4 projection = cam.getProjectionMatrix((float)windowWidth / (float)windowHeight);
+        glm::mat4 view = cam.getViewMatrix();
         glm::mat4 model = glm::mat4(1.0f); // 單位矩陣
 
-        m_Shader.setMat4("u_MVP", projection * view * model);
+        shader.setMat4("MVP", projection * view * model);
 
         // draw 3D gasket
-        m_Gasket.draw();
+        gasket.draw();
 
         // draw ImGui
-        m_UIManager.endFrame();
+        gui.endFrame();
 
-        glfwSwapBuffers(m_Window);
+        glfwSwapBuffers(window);
     }
 }
 
 void Application::cleanup()
 {
-    m_UIManager.cleanup();
-    m_Gasket.cleanup();
-    m_Shader.cleanup();
+    gui.cleanup();
+    gasket.cleanup();
+    shader.cleanup();
 
-    if (m_Window) {
-        glfwDestroyWindow(m_Window);
+    if (window) {
+        glfwDestroyWindow(window);
     }
     glfwTerminate();
 }
@@ -155,7 +155,7 @@ void Application::framebufferSizeCallback(GLFWwindow* window, int width, int hei
     Application* app = static_cast<Application*>(glfwGetWindowUserPointer(window));
     if (app) {
         glViewport(0, 0, width, height);
-        app->WindowWidth = width;
-        app->WindowHeight = height;
+        app->windowWidth = width;
+        app->windowHeight = height;
     }
 }

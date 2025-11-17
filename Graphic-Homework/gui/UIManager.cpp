@@ -6,7 +6,7 @@
 void UIManager::init(GLFWwindow* window) {
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
-    ImGuiIO& io = ImGui::GetIO(); (void)io;
+    ImGuiIO& io = ImGui::GetIO();
     ImFontConfig cfg;
     cfg.SizePixels = 22.0f; // Set desired font size in pixels
     io.Fonts->AddFontFromFileTTF("Roboto-Medium.ttf", 22.0f, &cfg);
