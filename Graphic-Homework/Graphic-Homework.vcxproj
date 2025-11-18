@@ -130,11 +130,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Application.cpp" />
-    <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="core\Application.cpp" />
+    <ClCompile Include="core\Camera.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="Shader.cpp" />
-    <ClCompile Include="TetraGasket.cpp" />
+    <ClCompile Include="core\Shader.cpp" />
+    <ClCompile Include="rendering\TetraGasket.cpp" />
     <ClCompile Include="gui\UIManager.cpp" />
     <ClCompile Include="vendor\glad\src\glad.c" />
     <ClCompile Include="vendor\imgui\backends\imgui_impl_glfw.cpp" />
@@ -146,11 +146,11 @@
     <ClCompile Include="vendor\imgui\imgui_widgets.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Application.h" />
-    <ClInclude Include="Camera.h" />
-    <ClInclude Include="Shader.h" />
+    <ClInclude Include="core\Application.h" />
+    <ClInclude Include="core\Camera.h" />
+    <ClInclude Include="core\Shader.h" />
     <ClInclude Include="stb_image.h" />
-    <ClInclude Include="TetraGasket.h" />
+    <ClInclude Include="rendering\TetraGasket.h" />
     <ClInclude Include="gui\UIManager.h" />
     <ClInclude Include="vendor\glad\include\glad\glad.h" />
     <ClInclude Include="vendor\glad\include\KHR\khrplatform.h" />

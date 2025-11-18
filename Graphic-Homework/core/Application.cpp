@@ -1,5 +1,5 @@
 #include "Application.h"
-#include "gui/UIManager.h"
+#include "../gui/UIManager.h"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>

@@ -4,8 +4,8 @@
 #include <GLFW/glfw3.h>
 #include "Camera.h"
 #include "Shader.h"
-#include "TetraGasket.h"
-#include "gui/UIManager.h"
+#include "../rendering/TetraGasket.h"
+#include "../gui/UIManager.h"
 
 class Application {
 public:

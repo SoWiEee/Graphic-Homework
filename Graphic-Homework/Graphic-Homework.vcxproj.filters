@@ -42,19 +42,19 @@
     <ClCompile Include="vendor\glad\src\glad.c">
       <Filter>來源檔案</Filter>
     </ClCompile>
-    <ClCompile Include="Application.cpp">
+    <ClCompile Include="core\Application.cpp">
       <Filter>來源檔案</Filter>
     </ClCompile>
-    <ClCompile Include="TetraGasket.cpp">
+    <ClCompile Include="rendering\TetraGasket.cpp">
       <Filter>來源檔案</Filter>
     </ClCompile>
     <ClCompile Include="gui\UIManager.cpp">
       <Filter>來源檔案</Filter>
     </ClCompile>
-    <ClCompile Include="Shader.cpp">
+    <ClCompile Include="core\Shader.cpp">
       <Filter>來源檔案</Filter>
     </ClCompile>
-    <ClCompile Include="Camera.cpp">
+    <ClCompile Include="core\Camera.cpp">
       <Filter>來源檔案</Filter>
     </ClCompile>
   </ItemGroup>
@@ -101,19 +101,19 @@
     <ClInclude Include="stb_image.h">
       <Filter>標頭檔</Filter>
     </ClInclude>
-    <ClInclude Include="Application.h">
+    <ClInclude Include="core\Application.h">
       <Filter>標頭檔</Filter>
     </ClInclude>
-    <ClInclude Include="TetraGasket.h">
+    <ClInclude Include="rendering\TetraGasket.h">
       <Filter>標頭檔</Filter>
     </ClInclude>
     <ClInclude Include="gui\UIManager.h">
       <Filter>標頭檔</Filter>
     </ClInclude>
-    <ClInclude Include="Shader.h">
+    <ClInclude Include="core\Shader.h">
       <Filter>標頭檔</Filter>
     </ClInclude>
-    <ClInclude Include="Camera.h">
+    <ClInclude Include="core\Camera.h">
       <Filter>標頭檔</Filter>
     </ClInclude>
   </ItemGroup>
