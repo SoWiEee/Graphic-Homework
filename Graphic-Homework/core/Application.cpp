@@ -34,7 +34,7 @@ void Application::init() {
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    glfwWindowHint(GLFW_SAMPLES, 16); // 4x MSAA
+    glfwWindowHint(GLFW_SAMPLES, 16); // 16x MSAA
 
     std::string windowTitle = "S11259043";
     window = glfwCreateWindow(windowWidth, windowHeight, windowTitle.c_str(), NULL, NULL);
@@ -57,8 +57,8 @@ void Application::init() {
 	glEnable(GL_MULTISAMPLE);   // enable MSAA
 
     glViewport(0, 0, windowWidth, windowHeight);
-    glEnable(GL_DEPTH_TEST); // 深度測試
-    glEnable(GL_CULL_FACE);  // 剔除背面
+    glEnable(GL_DEPTH_TEST); // z-buffer
+	glEnable(GL_CULL_FACE);  // cull back-face
 
     gui.init(window);
 
@@ -72,7 +72,6 @@ void Application::init() {
     gasket.init();
 
     // Z=2 -> (0,0,0)
-    // 並稍微向上移動 (Y 軸)，俯視角
     cam.setPosition(glm::vec3(0.0f, 0.0f, 2.0f));
     cam.setTarget(glm::vec3(0.0f, 0.0f, 0.0f));
 
