@@ -34,7 +34,7 @@ void Application::init() {
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    glfwWindowHint(GLFW_SAMPLES, 4); // 4x MSAA
+    glfwWindowHint(GLFW_SAMPLES, 16); // 4x MSAA
 
     std::string windowTitle = "S11259043";
     window = glfwCreateWindow(windowWidth, windowHeight, windowTitle.c_str(), NULL, NULL);
