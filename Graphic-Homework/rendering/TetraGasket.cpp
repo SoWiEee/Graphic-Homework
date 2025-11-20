@@ -19,14 +19,17 @@ void TetraGasket::init() {
     glCreateBuffers(1, &VBO_Position);
     glCreateBuffers(1, &VBO_Color);
 
+    // Position (Loc 0)
     glEnableVertexArrayAttrib(VAO, 0);
     glVertexArrayAttribFormat(VAO, 0, 3, GL_FLOAT, GL_FALSE, 0);
     glVertexArrayAttribBinding(VAO, 0, 0);
 
+    // Color (Loc 1)
     glEnableVertexArrayAttrib(VAO, 1);
     glVertexArrayAttribFormat(VAO, 1, 3, GL_FLOAT, GL_FALSE, 0);
     glVertexArrayAttribBinding(VAO, 1, 1);
 
+	// Bind VBOs to VAO
     glVertexArrayVertexBuffer(VAO, 0, VBO_Position, 0, sizeof(glm::vec3));
     glVertexArrayVertexBuffer(VAO, 1, VBO_Color, 0, sizeof(glm::vec3));
 }
@@ -84,7 +87,7 @@ void TetraGasket::addTriangle(const glm::vec3& p1, const glm::vec3& p2, const gl
 void TetraGasket::draw() {
     if (VertexCount > 0) {
         glBindVertexArray(VAO);
-        glDrawArrays(GL_TRIANGLES, 0, (GLsizei)VertexCount);
+        glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(VertexCount));
         glBindVertexArray(0);
     }
 }
